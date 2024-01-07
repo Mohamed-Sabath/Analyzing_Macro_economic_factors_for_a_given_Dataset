@@ -1,0 +1,190 @@
+---
+title: "Assignment 1 Macro"
+author: "Mohamed Sabath_COHNDDS23.1F-007"
+date: "2023-09-08"
+output: html_document
+---
+
+```{r}
+setwd("D:/Data science NIBM/HND/Macroeconomics/Assignment 1")
+```
+
+
+step 1 :Data Exploration 
+
+```{r}
+# Load the readxl package
+library(readxl)
+
+# Load the data from the Excel file
+data <- read_excel("CA 1 Data set.xlsx")
+
+
+# first few rows of the dataset
+head(data)
+
+
+```
+
+
+Step 2: Data Loading and Cleaning 
+
+```{r}
+# Checking for missing values
+colSums(is.na(data))
+
+```
+it has no null values.
+
+
+Step 3 : Descriptive Statistics and Visualization.
+```{r}
+# Getting basic information about the dataset
+str(data)
+
+# Getting summary statistics for numerical columns
+summary(data)
+
+# Getting the list of column names
+colnames(data)
+
+```
+```{r}
+library(ggplot2)
+ggplot(data, aes(x = Year, y = EI,)) +
+  geom_line(color = "darkgreen") +
+  scale_color_brewer(palette = "Set1") +
+  labs(title = "Line Graph for Exports and import Ratio",
+       x = "Year",
+       y = "Exports and Import Ratio") +
+  theme_minimal()
+
+```
+#Here it looks like by the year 2012 it has reached the ratio of 1.0 which means imports = exports.
+
+```{r}
+# Customized line graph with points
+ggplot(data, aes(x = Year, y = `GDP ($Mn)`)) +
+  geom_line(color = "#b042f5",size = 1) +
+  geom_point(shape = 16, size = 1, color = "red") +
+  labs(x = "Year", y = "GDP ($Mn)", title = "Line Graph with Points for the GDP")
+  scale_x_continuous(breaks = seq(min(data$Year), max(data$Year), by = 2))
+
+```
+Seems like by 1984 the gdp was 300mn. But after that we can see a continous decreament on the gdp until 1885.
+
+
+```{r}
+ggplot(data, aes(x = IH,)) +
+  geom_histogram(fill = "pink", colour = "black") +
+  labs(title = "Histogram of Per Capita income per worker hour")
+```
+```{r}
+#  line graph with points
+ggplot(data, aes(x = Year, y = `IH`)) +
+  geom_line(color = "#f5bf42",size = 1) +
+  geom_point(shape = 16, size = 1, color = "red") +
+  labs(x = "Year", y = "Per Capita income per work hour", title = "Line Graph with Points for the percapita income per work hour")
+  scale_x_continuous(breaks = seq(min(data$Year), max(data$Year), by = 2))
+```
+```{r}
+library(ggplot2)
+library(reshape2)
+
+cor_matrix <- cor(data[, c("ST", "EI", "IH", "GDP ($Mn)","BI ($Mn)")])
+
+cor_matrix_melted <- reshape2::melt(cor_matrix)
+
+ggplot(data = cor_matrix_melted, aes(x = Var1, y = Var2)) +
+  geom_tile(aes(fill = value), color = "white") +
+  geom_text(aes(label = round(value, 2)), color = "black", size = 3) +
+  scale_fill_gradient(low = "#42f5d7", high = "#9b42f5") +
+  labs(title = "Correlation Heatmap with Coefficient Values",
+       x = "Variable 1",
+       y = "Variable 2") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+```{r}
+library(scatterplot3d)
+# Create a 3D scatter plot
+scatterplot3d(data$ST, data$EI, data$`GDP ($Mn)`,
+  color = "blue", pch = 19, type = "h", main = "3D Scatter Plot",
+  xlab = "Subsidies per capita", ylab = "Exports and Imports", zlab = "GDP"
+)
+```
+
+```{r}
+# Define custom colors
+colors <- c('blue', 'green', 'red', 'cyan')
+
+# Setting up a multi-panel layout
+par(mfrow = c(2, 2), mar = c(4, 4, 2, 1), oma = c(0, 0, 2, 0))
+
+# Create time series plots for key variables with custom colors
+plot(data$Year, data$ST, type = 'o', col = colors[1], xlab = 'Year', ylab = 'ST (Subsidies per Taxes Collected)', main = 'Time Series Plot of ST')
+plot(data$Year, data$EI, type = 'o', col = colors[2], xlab = 'Year', ylab = 'EI (Exports to Imports)', main = 'Time Series Plot of EI')
+plot(data$Year, data$IH, type = 'o', col = colors[3], xlab = 'Year', ylab = 'IH (Per Capita Income per Worker Hour)', main = 'Time Series Plot of IH')
+plot(data$Year, data$`GDP ($Mn)`, type = 'o', col = colors[1], xlab = 'Year', ylab = 'Value ($Mn)', main = 'Time Series Plot of GDP')
+lines(data$Year, data$`BI ($Mn)`, type = 'o', col = colors[2])
+legend('topright', legend = c('GDP ($Mn)', 'BI ($Mn)'), col = colors[1:2], lty = 1)
+
+# Add overall title
+mtext('Time Series Plots for all the Key Variables', outer = TRUE, cex = 1.2)
+
+# Reset the plotting parameters
+par(mfrow = c(1, 1), oma = c(0, 0, 0, 0))
+
+```
+
+
+
+```{r}
+# Load the ggplot2 package
+library(ggplot2)
+
+# Create a density plot for Business Investments
+ggplot(data, aes(x = data$`BI ($Mn)`)) +
+  geom_density(fill = "lightblue", alpha = 0.7) +
+  labs(x = "Business Investments ($Mn)", y = "Density", title = "Density Plot for Business Investments")
+
+
+```
+
+The distribution shape seems not like bell shaped (symmetric). 
+
+```{r}
+ggplot(data, aes(x = `GDP ($Mn)`, y = `BI ($Mn)`)) +
+  geom_point(color = "blue", shape = 3) +  
+  labs(title = "Scatterplot of GDP and Business investment variable")
+```
+
+
+#The scatterplot above shows the relationship/ correlation between GDP and Business investments. From the chart, a positive linear correlation is visible (When one variable increases, the other tend to increase as well). Inother word we can say that the both variable has a good positive relationship.
+
+
+
+
+
+Step 4: Analysis and Interpretation.
+          1.Hypothesis testing.
+
+hypothesis = is there any relationship between Export and index and the Bisiness Investment.
+
+Null hypothesis(H0) = There is no relationship between Export and index and the Bisiness Investment.
+Alternate Hypothesis (H1) = There is a relationship between Export and index and the Bisiness Investment.
+
+
+
+```{r}
+lin_mod_EI_BI <- lm(EI~`BI ($Mn)`, data = data)
+summary(lin_mod_EI_BI)
+```
+So here we can see that the p value is less that 0.05. So that means we can't reject the null hypothesis. So we have to go with the alternative hypothesis. which means There is a relationship between Export and index and the Business Investment.
+
+
+
+        
+
